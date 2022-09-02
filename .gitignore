@@ -1,1 +1,16 @@
 docs/Thumbs.db
+Excimontec.exe
+src/Exciton.o
+src/OSC_Sim.o
+src/Parameters.o
+src/Polaron.o
+src/main.o
+test/Excimontec_tests.exe
+test/energies.txt
+test/gtest-all.o
+test/log.txt
+test/parameters_misspell_1.txt
+test/parameters_misspell_2.txt
+test/status.txt
+test/test.o
+test/test_log.txt
