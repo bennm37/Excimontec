@@ -144,6 +144,9 @@ namespace Excimontec {
 		//! Defines the number of events to execute during the equilibration phase of the steady charge transport test.
 		int N_equilibration_events;
 
+		//! Specifies whether or not the run the light dynamics transport test.
+		bool Enable_light_dynamics_test;
+
 		//! Specifies whether or not to output the density of occupied states and density of states data after the 
 		//! steady state charge transport test.
 		bool Enable_state_data_output = true;
@@ -359,6 +362,9 @@ namespace Excimontec {
 
 		//! Defines the cutoff radius for Coulomb interactions in units of nm.
 		int Coulomb_cutoff;
+
+		//! Testing throughput 
+		double New_param;
 
 		// Functions ---------------------------------------------------------------------------------------------------
 

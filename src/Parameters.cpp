@@ -92,6 +92,7 @@ namespace Excimontec {
 		// ToF test
 		// IQE test
 		// Dynamics test
+		// TODO put Enable_light_dynamics_test in here
 		int N_tests_enabled = 0;
 		if (Enable_exciton_diffusion_test)
 			N_tests_enabled++;
@@ -102,6 +103,8 @@ namespace Excimontec {
 		if (Enable_dynamics_test)
 			N_tests_enabled++;
 		if (Enable_steady_transport_test)
+			N_tests_enabled++;
+		if (Enable_light_dynamics_test)
 			N_tests_enabled++;
 		if (N_tests_enabled > 1) {
 			cout << "Error! Only one test can be enabled." << endl;
@@ -591,7 +594,19 @@ namespace Excimontec {
 		i++;
 		N_equilibration_events = atoi(stringvars[i].c_str());
 		i++;
+		try {
+			Enable_light_dynamics_test = str2bool(stringvars[i]);
+		}
+		catch (invalid_argument& exception) {
+			cout << exception.what() << endl;
+			cout << "Error enabling the light dynamics test." << endl;
+			Error_found = true;
+		}
+		if (Enable_light_dynamics_test){
+			cout << "Light Dynamics Test Enabled" << endl;
+		}
 		// Exciton Parameters
+		i++;
 		Exciton_generation_rate_donor = atof(stringvars[i].c_str());
 		i++;
 		Exciton_generation_rate_acceptor = atof(stringvars[i].c_str());
@@ -854,6 +869,9 @@ namespace Excimontec {
 			auto vec = { Params_lattice.Length, Params_lattice.Width, Params_lattice.Height };
 			Coulomb_cutoff = (int)floor(*min_element(vec.begin(), vec.end()) / 2.0);
 		}
+		New_param = atof(stringvars[i].c_str());
+		cout << "New_param loaded as " << New_param << endl;
+		i++;
 		if (Error_found) {
 			return false;
 		}

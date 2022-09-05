@@ -287,9 +287,9 @@ int main(int argc, char *argv[]) {
 		if (params.Enable_exciton_diffusion_test) {
 			resultsfile << "Exciton diffusion test results:\n";
 			resultsfile << sim.getN_excitons_created() << " excitons have been created.\n";
-			resultsfile << "Exciton diffusion length is " << vector_avg(sim.getExcitonDiffusionData()) << " ± " << vector_stdev(sim.getExcitonDiffusionData()) << " nm.\n";
-			resultsfile << "Exciton hop distance is " << vector_avg(sim.getExcitonHopLengthData()) << " ± " << vector_stdev(sim.getExcitonHopLengthData()) << " nm.\n";
-			resultsfile << "Exciton lifetime is " << vector_avg(sim.getExcitonLifetimeData()) << " ± " << vector_stdev(sim.getExcitonLifetimeData()) << " s.\n";
+			resultsfile << "Exciton diffusion length is " << vector_avg(sim.getExcitonDiffusionData()) << " ï¿½ " << vector_stdev(sim.getExcitonDiffusionData()) << " nm.\n";
+			resultsfile << "Exciton hop distance is " << vector_avg(sim.getExcitonHopLengthData()) << " ï¿½ " << vector_stdev(sim.getExcitonHopLengthData()) << " nm.\n";
+			resultsfile << "Exciton lifetime is " << vector_avg(sim.getExcitonLifetimeData()) << " ï¿½ " << vector_stdev(sim.getExcitonLifetimeData()) << " s.\n";
 		}
 		else if (params.Enable_ToF_test) {
 			resultsfile << "Time-of-flight charge transport test results:\n";
@@ -299,8 +299,8 @@ int main(int argc, char *argv[]) {
 			else {
 				resultsfile << sim.getN_holes_collected() << " of " << sim.getN_holes_created() << " holes have been collected.\n";
 			}
-			resultsfile << "Transit time is " << vector_avg(sim.getTransitTimeData()) << " ± " << vector_stdev(sim.getTransitTimeData()) << " s.\n";
-			resultsfile << "Charge carrier mobility is " << vector_avg(sim.calculateMobilityData(sim.getTransitTimeData())) << " ± " << vector_stdev(sim.calculateMobilityData(sim.getTransitTimeData())) << " cm^2 V^-1 s^-1.\n";
+			resultsfile << "Transit time is " << vector_avg(sim.getTransitTimeData()) << " ï¿½ " << vector_stdev(sim.getTransitTimeData()) << " s.\n";
+			resultsfile << "Charge carrier mobility is " << vector_avg(sim.calculateMobilityData(sim.getTransitTimeData())) << " ï¿½ " << vector_stdev(sim.calculateMobilityData(sim.getTransitTimeData())) << " cm^2 V^-1 s^-1.\n";
 		}
 		if (params.Enable_dynamics_test) {
 			resultsfile << "Dynamics test results:\n";
@@ -345,13 +345,21 @@ int main(int argc, char *argv[]) {
 	}
 	resultsfile.close();
 	// Output charge extraction map data
-	if (success && params.Enable_extraction_map_output && (params.Enable_ToF_test || params.Enable_IQE_test)) {
+	if (success && params.Enable_extraction_map_output && (params.Enable_ToF_test || params.Enable_IQE_test || params.Enable_light_dynamics_test)) {
 		if (params.Enable_ToF_test) {
 			string filename = "Charge_extraction_map" + to_string(procid) + ".txt";
 			vector<string> extraction_data = sim.getChargeExtractionMap(params.ToF_polaron_type);
 			outputVectorToFile(extraction_data, filename);
 		}
 		if (params.Enable_IQE_test) {
+			string filename = "Electron_extraction_map" + to_string(procid) + ".txt";
+			vector<string> extraction_data = sim.getChargeExtractionMap(false);
+			outputVectorToFile(extraction_data, filename);
+			filename = "Hole_extraction_map" + to_string(procid) + ".txt";
+			extraction_data = sim.getChargeExtractionMap(true);
+			outputVectorToFile(extraction_data, filename);
+		}
+		if (params.Enable_light_dynamics_test) {
 			string filename = "Electron_extraction_map" + to_string(procid) + ".txt";
 			vector<string> extraction_data = sim.getChargeExtractionMap(false);
 			outputVectorToFile(extraction_data, filename);
@@ -387,9 +395,9 @@ int main(int argc, char *argv[]) {
 		if (procid == 0) {
 			analysisfile << "Overall exciton diffusion test results:\n";
 			analysisfile << nproc * (sim.getN_singlet_excitons_recombined() + sim.getN_triplet_excitons_recombined()) << " total excitons tested." << endl;
-			analysisfile << "Exciton diffusion length is " << vector_avg(exciton_diffusion_data) << " ± " << vector_stdev(exciton_diffusion_data) << " nm.\n";
-			analysisfile << "Exciton hop distance is " << sqrt(vector_avg(exciton_hop_length_data))*params.Params_lattice.Unit_size << " ± " << sqrt(vector_stdev(exciton_hop_length_data))*params.Params_lattice.Unit_size << " nm.\n";
-			analysisfile << "Exciton lifetime is " << vector_avg(exciton_lifetime_data) << " ± " << vector_stdev(exciton_lifetime_data) << " s.\n";
+			analysisfile << "Exciton diffusion length is " << vector_avg(exciton_diffusion_data) << " ï¿½ " << vector_stdev(exciton_diffusion_data) << " nm.\n";
+			analysisfile << "Exciton hop distance is " << sqrt(vector_avg(exciton_hop_length_data))*params.Params_lattice.Unit_size << " ï¿½ " << sqrt(vector_stdev(exciton_hop_length_data))*params.Params_lattice.Unit_size << " nm.\n";
+			analysisfile << "Exciton lifetime is " << vector_avg(exciton_lifetime_data) << " ï¿½ " << vector_stdev(exciton_lifetime_data) << " s.\n";
 		}
 	}
 	if (error_found == (char)0 && params.Enable_ToF_test) {
@@ -448,8 +456,8 @@ int main(int argc, char *argv[]) {
 				analysisfile << nproc * sim.getN_holes_collected() << " total holes collected out of " << transit_attempts_total << " total attempts.\n";
 			}
 
-			analysisfile << "Transit time is " << vector_avg(transit_times_all) << " ± " << vector_stdev(transit_times_all) << " s.\n";
-			analysisfile << "Charge carrier mobility is " << vector_avg(mobility_data_all) << " ± " << vector_stdev(mobility_data_all) << " cm^2 V^-1 s^-1.\n";
+			analysisfile << "Transit time is " << vector_avg(transit_times_all) << " ï¿½ " << vector_stdev(transit_times_all) << " s.\n";
+			analysisfile << "Charge carrier mobility is " << vector_avg(mobility_data_all) << " ï¿½ " << vector_stdev(mobility_data_all) << " cm^2 V^-1 s^-1.\n";
 		}
 	}
 	if (error_found == (char)0 && params.Enable_dynamics_test) {
@@ -585,6 +593,11 @@ int main(int argc, char *argv[]) {
 			analysisfile << "IQE = " << 100 * (double)(electrons_collected_total + holes_collected_total) / (2 * (double)excitons_created_total) << "% with an internal potential of " << params.Internal_potential << " V." << endl;
 		}
 	}
+	if (error_found == (char)0 && params.Enable_light_dynamics_test) {
+		if (procid == 0) {
+			analysisfile << "This was a Light Dynamics Test\n";
+		}
+	}
 	if (error_found == (char)0 && params.Enable_steady_transport_test) {
 		// Calculate the average DOOS
 		auto doos_avg1 = MPI_calculatePairVectorAvg(sim.getSteadyDOOS());
@@ -631,12 +644,12 @@ int main(int argc, char *argv[]) {
 			analysisfile << "Temperature = " << sim.getTemp() << " K.\n";
 			analysisfile << "Charge carrier density = " << params.Steady_carrier_density << " cm^-3.\n";
 			analysisfile << "Electric field = " << fabs(sim.getInternalField()) << " V cm^-1.\n\n";
-			analysisfile << "Current density = " << vector_avg(current_densities) << " ± " << vector_stdev(current_densities) << " mA cm^-2.\n";
-			analysisfile << "Charge carrier mobility = " << vector_avg(mobilities) << " ± " << vector_stdev(mobilities) << " cm^2 V^-1 s^-1.\n";
-			analysisfile << "Equilibration energy (without Coulomb potential) = " << vector_avg(equilibration_energies1) << " ± " << vector_stdev(equilibration_energies1) << " eV.\n";
-			analysisfile << "Equilibration energy (with Coulomb potential) = " << vector_avg(equilibration_energies2) << " ± " << vector_stdev(equilibration_energies2) << " eV.\n";
-			analysisfile << "Transport energy (without Coulomb potential) = " << vector_avg(transport_energies1) << " ± " << vector_stdev(transport_energies1) << " eV.\n";
-			analysisfile << "Transport energy (with Coulomb potential) = " << vector_avg(transport_energies2) << " ± " << vector_stdev(transport_energies2) << " eV.\n\n";
+			analysisfile << "Current density = " << vector_avg(current_densities) << " ï¿½ " << vector_stdev(current_densities) << " mA cm^-2.\n";
+			analysisfile << "Charge carrier mobility = " << vector_avg(mobilities) << " ï¿½ " << vector_stdev(mobilities) << " cm^2 V^-1 s^-1.\n";
+			analysisfile << "Equilibration energy (without Coulomb potential) = " << vector_avg(equilibration_energies1) << " ï¿½ " << vector_stdev(equilibration_energies1) << " eV.\n";
+			analysisfile << "Equilibration energy (with Coulomb potential) = " << vector_avg(equilibration_energies2) << " ï¿½ " << vector_stdev(equilibration_energies2) << " eV.\n";
+			analysisfile << "Transport energy (without Coulomb potential) = " << vector_avg(transport_energies1) << " ï¿½ " << vector_stdev(transport_energies1) << " eV.\n";
+			analysisfile << "Transport energy (with Coulomb potential) = " << vector_avg(transport_energies2) << " ï¿½ " << vector_stdev(transport_energies2) << " eV.\n\n";
 			analysisfile << "CSV formatted results:\n";
 			analysisfile << "Temperature (K),Charge Carrier Density (cm^-3),Electric Field (V cm^-1),";
 			analysisfile << "Current Density Avg. (mA cm^-2),Current Density Stdev. (mA cm^-2),Mobility Avg. (cm^2 V^-1 cm^-1),Mobility Stdev. (cm^2 V^-1 cm^-1),";

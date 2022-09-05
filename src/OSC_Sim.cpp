@@ -40,6 +40,12 @@ namespace Excimontec {
 			Transient_end = params.Dynamics_transient_end;
 			Transient_pnts_per_decade = params.Dynamics_pnts_per_decade;
 		}
+		//TODO light dynamics transients
+		if (params.Enable_light_dynamics_test) {
+			Transient_start = params.Dynamics_transient_start;
+			Transient_end = params.Dynamics_transient_end;
+			Transient_pnts_per_decade = params.Dynamics_pnts_per_decade;
+		}
 		// Initialize Sites
 		Site_OSC site;
 		sites.assign(lattice.getNumSites(), site);
@@ -78,6 +84,17 @@ namespace Excimontec {
 		R_exciton_generation_donor = ((params.Exciton_generation_rate_donor*N_donor_sites*1e-7*lattice.getUnitSize())*1e-7*lattice.getUnitSize())*1e-7*lattice.getUnitSize();
 		R_exciton_generation_acceptor = ((params.Exciton_generation_rate_acceptor*N_acceptor_sites*1e-7*lattice.getUnitSize())*1e-7*lattice.getUnitSize())*1e-7*lattice.getUnitSize();
 		if (params.Enable_exciton_diffusion_test || params.Enable_IQE_test) {
+			isLightOn = true;
+			Exciton::Creation exciton_creation_event(this);
+			exciton_creation_event.calculateRateConstant(R_exciton_generation_donor + R_exciton_generation_acceptor);
+			exciton_creation_event.calculateExecutionTime(R_exciton_generation_donor + R_exciton_generation_acceptor);
+			exciton_creation_events.assign(1, exciton_creation_event);
+			exciton_creation_it = addEvent(&exciton_creation_events.front());
+		}
+		//TODO Light Dynamics IQE Clone
+		//Creates Exciton generation event.
+		//I think hopping, generation, disociation events etc create themselves
+		if (params.Enable_light_dynamics_test) {
 			isLightOn = true;
 			Exciton::Creation exciton_creation_event(this);
 			exciton_creation_event.calculateRateConstant(R_exciton_generation_donor + R_exciton_generation_acceptor);
@@ -138,6 +155,12 @@ namespace Excimontec {
 			generateSteadyPolarons();
 		}
 		if (params.Enable_IQE_test) {
+			electron_extraction_data.assign(lattice.getLength()*lattice.getWidth(), 0);
+			hole_extraction_data.assign(lattice.getLength()*lattice.getWidth(), 0);
+		}
+		//TODO Light Dynamics IQE Clone
+		//Sets up extraction data arrays?
+		if (params.Enable_light_dynamics_test) {
 			electron_extraction_data.assign(lattice.getLength()*lattice.getWidth(), 0);
 			hole_extraction_data.assign(lattice.getLength()*lattice.getWidth(), 0);
 		}
@@ -893,6 +916,18 @@ namespace Excimontec {
 			}
 			return false;
 		}
+		//TODO Light Dynamics IQE Clone
+		//Checks if the ending criteria are met
+		if (params.Enable_light_dynamics_test) {
+			if (N_excitons_created == params.N_tests && N_excitons == 0 && N_electrons == 0 && N_holes == 0) {
+				return true;
+			}
+			if (N_excitons_created == params.N_tests && getTime() > params.IQE_time_cutoff) {
+				return true;
+			}
+			return false;
+		}
+
 		if (params.Enable_steady_transport_test) {
 			return (N_events_executed == (params.N_equilibration_events + params.N_tests));
 		}
@@ -1532,6 +1567,13 @@ namespace Excimontec {
 				isLightOn = false;
 			}
 		}
+		//TODO Light Dynamics IQE Clone
+		if (params.Enable_light_dynamics_test) {
+			if (isLightOn && N_excitons_created == params.N_tests) {
+				removeEvent(&exciton_creation_events.front());
+				isLightOn = false;
+			}
+		}
 		// Perform Transients test analysis
 		if (params.Enable_dynamics_test || params.Enable_ToF_test) {
 			updateTransientData();
@@ -1662,6 +1704,16 @@ namespace Excimontec {
 			transit_times.push_back(getTime() - ((*event_it)->getObjectPtr())->getCreationTime());
 		}
 		if (params.Enable_ToF_test || params.Enable_IQE_test) {
+			if (!charge) {
+				electron_extraction_data[lattice.getWidth()*coords_initial.x + coords_initial.y]++;
+			}
+			else {
+				hole_extraction_data[lattice.getWidth()*coords_initial.x + coords_initial.y]++;
+			}
+		}
+		//TODO Light Dynamics IQE Clone
+		//Saving Extraction data
+		if (params.Enable_light_dynamics_test) {
 			if (!charge) {
 				electron_extraction_data[lattice.getWidth()*coords_initial.x + coords_initial.y]++;
 			}
@@ -2642,6 +2694,24 @@ namespace Excimontec {
 			}
 		}
 		if (params.Enable_IQE_test || params.Enable_dynamics_test) {
+			cout << getId() << ": Time = " << getTime() << " seconds.\n";
+			cout << getId() << ": " << N_excitons_created << " excitons have been created and " << N_events_executed << " events have been executed.\n";
+			cout << getId() << ": There are currently " << N_excitons << " excitons in the lattice:\n";
+			for (auto const &item : excitons) {
+				cout << getId() << ": Exciton " << item.getTag() << " is at " << item.getCoords().x << "," << item.getCoords().y << "," << item.getCoords().z << ".\n";
+			}
+			cout << getId() << ": There are currently " << N_electrons << " electrons in the lattice:\n";
+			for (auto const &item : electrons) {
+				cout << getId() << ": Electron " << item.getTag() << " is at " << item.getCoords().x << "," << item.getCoords().y << "," << item.getCoords().z << ".\n";
+			}
+			cout << getId() << ": There are currently " << N_holes << " holes in the lattice:\n";
+			for (auto const &item : holes) {
+				cout << getId() << ": Hole " << item.getTag() << " is at " << item.getCoords().x << "," << item.getCoords().y << "," << item.getCoords().z << ".\n";
+			}
+		}
+		//TODO Light Dynamics IQE Clone
+		if (params.Enable_light_dynamics_test) {
+			cout << getId() << "This is a Light Dynamics Test\n";
 			cout << getId() << ": Time = " << getTime() << " seconds.\n";
 			cout << getId() << ": " << N_excitons_created << " excitons have been created and " << N_events_executed << " events have been executed.\n";
 			cout << getId() << ": There are currently " << N_excitons << " excitons in the lattice:\n";
