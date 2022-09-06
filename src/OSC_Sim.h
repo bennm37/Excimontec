@@ -350,6 +350,23 @@ namespace Excimontec {
 		//! \brief Gets the transit time data generate during the time-of-flight charge transport test.
 		//! \return A vector of data representing the transit time of all extracted polarons.
 		std::vector<double> getTransitTimeData() const;
+		
+		//TODO probably delete
+		// //! \brief Gets the transient electron counts data generated during the light dynamics  test.
+		// //! \returns A vector of data representing how the number of polarons in the simulation changes over time.
+		// std::vector<int> getLDTransientElectronCounts() const;
+
+		// //! \brief Gets the transient hole counts data generated during the light dynamics  test.
+		// //! \returns A vector of data representing how the number of polarons in the simulation changes over time.
+		// std::vector<int> getLDTransientHoleCounts() const;
+
+		// //! \brief Gets the transient Singlet counts data generated during the light dynamics  test.
+		// //! \returns A vector of data representing how the number of polarons in the simulation changes over time.
+		// std::vector<int> getLDTransientSingletCounts() const;
+
+		// //! \brief Gets the transient Triplet counts data generated during the light dynamics  test.
+		// //! \returns A vector of data representing how the number of polarons in the simulation changes over time.
+		// std::vector<int> getLDTransientTripletCounts() const;
 
 		//! \brief Prints a message to the command line about the current status of the simulation test.
 		void outputStatus();

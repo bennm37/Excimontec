@@ -594,8 +594,22 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	if (error_found == (char)0 && params.Enable_light_dynamics_test) {
+		double volume_total = sim.getVolume();
+		vector<double> times = sim.getDynamicsTransientTimes();
+		vector<int> singlets_total = MPI_calculateVectorSum(sim.getDynamicsTransientSinglets());
+		vector<int> triplets_total = MPI_calculateVectorSum(sim.getDynamicsTransientTriplets());
+		vector<int> electrons_total = MPI_calculateVectorSum(sim.getDynamicsTransientElectrons());
+		vector<int> holes_total = MPI_calculateVectorSum(sim.getDynamicsTransientHoles());
 		if (procid == 0) {
 			analysisfile << "This was a Light Dynamics Test\n";
+			analysisfile << "Total volume : " << volume_total << ".\n";
+			ofstream transientfile;
+			transientfile.open("light_dynamics_transients.txt");
+			transientfile << "Times,Singlet Density (cm-3), Triplet Density (cm-3),Electron Density (cm-3), Hole Density (cm-3) \n";
+			for (int i = 0; i < (int)times.size(); i++) {
+				transientfile << times[i] << "," << singlets_total[i] / volume_total << "," << triplets_total[i] / volume_total << "," << electrons_total[i] / volume_total << "," << holes_total[i] /volume_total <<"\n";
+			}
+			transientfile.close();
 		}
 	}
 	if (error_found == (char)0 && params.Enable_steady_transport_test) {

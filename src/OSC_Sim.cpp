@@ -101,7 +101,20 @@ namespace Excimontec {
 			exciton_creation_event.calculateExecutionTime(R_exciton_generation_donor + R_exciton_generation_acceptor);
 			exciton_creation_events.assign(1, exciton_creation_event);
 			exciton_creation_it = addEvent(&exciton_creation_events.front());
+
+			//Setting up transient stuff
+			Transient_step_size = 1.0 / (double)Transient_pnts_per_decade;
+			int num_steps = (int)floor((log10(Transient_end) - log10(Transient_start)) / Transient_step_size) + 1;
+			transient_times.assign(num_steps, 0);
+			for (int i = 0; i < (int)transient_times.size(); i++) {
+				transient_times[i] = pow(10, log10(Transient_start) + i * Transient_step_size);
+			}
+			transient_singlet_counts.assign(num_steps, 0);
+			transient_triplet_counts.assign(num_steps, 0);
+			transient_electron_counts.assign(num_steps, 0);
+			transient_hole_counts.assign(num_steps, 0);
 		}
+
 		else if (params.Enable_dynamics_test) {
 			isLightOn = false;
 			// Initialize parameters
@@ -1569,6 +1582,7 @@ namespace Excimontec {
 		}
 		//TODO Light Dynamics IQE Clone
 		if (params.Enable_light_dynamics_test) {
+			updateTransientData();
 			if (isLightOn && N_excitons_created == params.N_tests) {
 				removeEvent(&exciton_creation_events.front());
 				isLightOn = false;
@@ -3193,6 +3207,36 @@ namespace Excimontec {
 				Transient_index_prev = index;
 			}
 		}
+		else if (params.Enable_light_dynamics_test) {
+			// Calculate data for next time step if enough time has elapsed
+			if ((getTime() - Transient_creation_time) > transient_times[Transient_index_prev + 1]) {
+				cout << "Updating Transient Data for Light Dynamics Test at Time " << getTime() << "\n";
+				int index = (int)floor((log10(getTime() - Transient_creation_time) - log10(Transient_start)) / Transient_step_size);
+				if (index >= (int)transient_times.size()) {
+					return;
+				}
+				// Update info for any previous timesteps that have elapsed already but were not accounted for
+				while (index != 0 && Transient_index_prev < index - 1 && Transient_index_prev + 1 < (int)transient_times.size()) {
+					cout << "Catching Up Updating Transient Data for Light Dynamics Test at Time " << getTime() << "\n";
+					transient_singlet_counts[Transient_index_prev + 1] += Transient_singlet_counts_prev;
+					transient_triplet_counts[Transient_index_prev + 1] += Transient_triplet_counts_prev;
+					transient_electron_counts[Transient_index_prev + 1] += Transient_electron_counts_prev;
+					transient_hole_counts[Transient_index_prev + 1] += Transient_hole_counts_prev;
+					Transient_index_prev++;
+				}
+				// Update info for the current timestep
+				transient_singlet_counts[index] += N_singlets;
+				transient_triplet_counts[index] += N_triplets;
+				transient_electron_counts[index] += N_electrons;
+				transient_hole_counts[index] += N_holes;
+				Transient_singlet_counts_prev = N_singlets;
+				Transient_triplet_counts_prev = N_triplets;
+				Transient_electron_counts_prev = N_electrons;
+				Transient_hole_counts_prev = N_holes;
+				Transient_index_prev = index;
+			}
+		}
 
+	
 	}
 }
