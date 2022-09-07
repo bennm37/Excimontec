@@ -932,12 +932,15 @@ namespace Excimontec {
 		//TODO Light Dynamics IQE Clone
 		//Checks if the ending criteria are met
 		if (params.Enable_light_dynamics_test) {
-			if (N_excitons_created == params.N_tests && N_excitons == 0 && N_electrons == 0 && N_holes == 0) {
+			if ( N_excitons_created == params.N_tests){
 				return true;
 			}
-			if (N_excitons_created == params.N_tests && getTime() > params.IQE_time_cutoff) {
-				return true;
-			}
+			// if (N_excitons_created == params.N_tests && N_excitons == 0 && N_electrons == 0 && N_holes == 0) {
+			// 	return true;
+			// }
+			// if (N_excitons_created == params.N_tests && getTime() > params.IQE_time_cutoff) {
+			// 	return true;
+			// }
 			return false;
 		}
 
@@ -1578,6 +1581,7 @@ namespace Excimontec {
 			if (isLightOn && N_excitons_created == params.N_tests) {
 				removeEvent(&exciton_creation_events.front());
 				isLightOn = false;
+
 			}
 		}
 		//TODO Light Dynamics IQE Clone
@@ -1586,6 +1590,7 @@ namespace Excimontec {
 			if (isLightOn && N_excitons_created == params.N_tests) {
 				removeEvent(&exciton_creation_events.front());
 				isLightOn = false;
+				cout << "Turning off the the light at time " << getTime() << endl;
 			}
 		}
 		// Perform Transients test analysis
@@ -2725,21 +2730,21 @@ namespace Excimontec {
 		}
 		//TODO Light Dynamics IQE Clone
 		if (params.Enable_light_dynamics_test) {
-			cout << getId() << "This is a Light Dynamics Test\n";
+			cout << getId() << ": This is a Light Dynamics Test\n";
 			cout << getId() << ": Time = " << getTime() << " seconds.\n";
 			cout << getId() << ": " << N_excitons_created << " excitons have been created and " << N_events_executed << " events have been executed.\n";
 			cout << getId() << ": There are currently " << N_excitons << " excitons in the lattice:\n";
-			for (auto const &item : excitons) {
-				cout << getId() << ": Exciton " << item.getTag() << " is at " << item.getCoords().x << "," << item.getCoords().y << "," << item.getCoords().z << ".\n";
-			}
+			// for (auto const &item : excitons) {
+			// 	cout << getId() << ": Exciton " << item.getTag() << " is at " << item.getCoords().x << "," << item.getCoords().y << "," << item.getCoords().z << ".\n";
+			// }
 			cout << getId() << ": There are currently " << N_electrons << " electrons in the lattice:\n";
-			for (auto const &item : electrons) {
-				cout << getId() << ": Electron " << item.getTag() << " is at " << item.getCoords().x << "," << item.getCoords().y << "," << item.getCoords().z << ".\n";
-			}
+			// for (auto const &item : electrons) {
+			// 	cout << getId() << ": Electron " << item.getTag() << " is at " << item.getCoords().x << "," << item.getCoords().y << "," << item.getCoords().z << ".\n";
+			// }
 			cout << getId() << ": There are currently " << N_holes << " holes in the lattice:\n";
-			for (auto const &item : holes) {
-				cout << getId() << ": Hole " << item.getTag() << " is at " << item.getCoords().x << "," << item.getCoords().y << "," << item.getCoords().z << ".\n";
-			}
+			// for (auto const &item : holes) {
+			// 	cout << getId() << ": Hole " << item.getTag() << " is at " << item.getCoords().x << "," << item.getCoords().y << "," << item.getCoords().z << ".\n";
+			// }
 		}
 		if (params.Enable_steady_transport_test) {
 			if (N_events_executed <= params.N_equilibration_events) {
@@ -3210,14 +3215,14 @@ namespace Excimontec {
 		else if (params.Enable_light_dynamics_test) {
 			// Calculate data for next time step if enough time has elapsed
 			if ((getTime() - Transient_creation_time) > transient_times[Transient_index_prev + 1]) {
-				cout << "Updating Transient Data for Light Dynamics Test at Time " << getTime() << "\n";
+				// cout << "Updating Transient Data for Light Dynamics Test at Time " << getTime() << "\n";
 				int index = (int)floor((log10(getTime() - Transient_creation_time) - log10(Transient_start)) / Transient_step_size);
 				if (index >= (int)transient_times.size()) {
 					return;
 				}
 				// Update info for any previous timesteps that have elapsed already but were not accounted for
 				while (index != 0 && Transient_index_prev < index - 1 && Transient_index_prev + 1 < (int)transient_times.size()) {
-					cout << "Catching Up Updating Transient Data for Light Dynamics Test at Time " << getTime() << "\n";
+					// cout << "Catching Up Updating Transient Data for Light Dynamics Test at Time " << getTime() << "\n";
 					transient_singlet_counts[Transient_index_prev + 1] += Transient_singlet_counts_prev;
 					transient_triplet_counts[Transient_index_prev + 1] += Transient_triplet_counts_prev;
 					transient_electron_counts[Transient_index_prev + 1] += Transient_electron_counts_prev;

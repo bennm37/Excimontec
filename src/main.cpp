@@ -251,6 +251,7 @@ int main(int argc, char *argv[]) {
 			}
 		}
 		// Output status
+		//CHANGED from 1000000
 		if (sim.getN_events_executed() % 1000000 == 0) {
 			sim.outputStatus();
 		}
@@ -516,7 +517,8 @@ int main(int argc, char *argv[]) {
 			transientfile.close();
 		}
 	}
-	if (error_found == (char)0 && (params.Enable_dynamics_test || params.Enable_IQE_test || params.Enable_exciton_diffusion_test)) {
+	//CHANGED
+	if (error_found == (char)0 && (params.Enable_dynamics_test || params.Enable_IQE_test || params.Enable_exciton_diffusion_test ||params.Enable_light_dynamics_test)) {
 		int excitons_created = sim.getN_excitons_created();
 		int excitons_created_total;
 		MPI_Reduce(&excitons_created, &excitons_created_total, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
@@ -607,7 +609,8 @@ int main(int argc, char *argv[]) {
 			transientfile.open("light_dynamics_transients.txt");
 			transientfile << "Times,Singlet Density (cm-3), Triplet Density (cm-3),Electron Density (cm-3), Hole Density (cm-3) \n";
 			for (int i = 0; i < (int)times.size(); i++) {
-				transientfile << times[i] << "," << singlets_total[i] / volume_total << "," << triplets_total[i] / volume_total << "," << electrons_total[i] / volume_total << "," << holes_total[i] /volume_total <<"\n";
+				// transientfile << times[i] << "," << singlets_total[i] / volume_total << "," << triplets_total[i] / volume_total << "," << electrons_total[i] / volume_total << "," << holes_total[i] /volume_total <<"\n";
+				transientfile << times[i] << "," << singlets_total[i] << "," << triplets_total[i] << "," << electrons_total[i] << "," << holes_total[i] <<"\n";
 			}
 			transientfile.close();
 		}
