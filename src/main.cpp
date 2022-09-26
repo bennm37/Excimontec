@@ -602,15 +602,16 @@ int main(int argc, char *argv[]) {
 		vector<int> triplets_total = MPI_calculateVectorSum(sim.getDynamicsTransientTriplets());
 		vector<int> electrons_total = MPI_calculateVectorSum(sim.getDynamicsTransientElectrons());
 		vector<int> holes_total = MPI_calculateVectorSum(sim.getDynamicsTransientHoles());
+		vector<double> velocities_total = MPI_calculateVectorSum(sim.getToFTransientVelocities());
 		if (procid == 0) {
 			analysisfile << "This was a Light Dynamics Test\n";
 			analysisfile << "Total volume : " << volume_total << ".\n";
 			ofstream transientfile;
 			transientfile.open("light_dynamics_transients.txt");
-			transientfile << "Times,Singlet Density (cm-3), Triplet Density (cm-3),Electron Density (cm-3), Hole Density (cm-3) \n";
+			transientfile << "Times,Singlet Density (cm-3), Triplet Density (cm-3),Electron Density (cm-3), Hole Density (cm-3), Velocities (cms-1)\n";
 			for (int i = 0; i < (int)times.size(); i++) {
 				// transientfile << times[i] << "," << singlets_total[i] / volume_total << "," << triplets_total[i] / volume_total << "," << electrons_total[i] / volume_total << "," << holes_total[i] /volume_total <<"\n";
-				transientfile << times[i] << "," << singlets_total[i] << "," << triplets_total[i] << "," << electrons_total[i] << "," << holes_total[i] <<"\n";
+				transientfile << times[i] << "," << singlets_total[i] << "," << triplets_total[i] << "," << electrons_total[i] << "," << holes_total[i] << "," << velocities_total[i] <<"\n";
 			}
 			transientfile.close();
 		}

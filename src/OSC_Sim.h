@@ -546,6 +546,7 @@ namespace Excimontec {
 		std::vector<double> exciton_lifetimes;
 		std::vector<double> exciton_diffusion_distances;
 		std::vector<int> exciton_hop_distances; // saved in lattice units squared
+		// std::vector<int> LD_positions_prev;
 		std::vector<int> transient_exciton_tags;
 		std::vector<int> transient_electron_tags;
 		std::vector<int> transient_hole_tags;
@@ -572,6 +573,7 @@ namespace Excimontec {
 		std::vector<int> transient_triplet_counts;
 		std::vector<int> transient_electron_counts;
 		std::vector<int> transient_hole_counts;
+		// std::vector<int> LD_hole_positions_prev;
 		int Steady_hops_per_DOS_sample = 1000000;
 		int Steady_hops_per_DOOS_sample = 1000;
 		int Steady_DOS_sampling_counter = 0;
@@ -608,7 +610,8 @@ namespace Excimontec {
 		int N_electrons_recombined = 0;
 		int N_electrons_collected = 0;
 		int N_electrons = 0;
-		long int N_events_executed = 0;
+		// long int N_events_executed = 0;   // Declaring parameters above this causes segfault (weird)
+		int N_events_executed = 0;   //TODO Got rid of long to avoid segfault bug, may be an issue
 		int N_holes_created = 0;
 		int N_holes_recombined = 0;
 		int N_holes_collected = 0;
@@ -618,6 +621,7 @@ namespace Excimontec {
 		int N_electron_surface_recombinations = 0;
 		int N_hole_surface_recombinations = 0;
 		int N_transient_cycles = 0;
+		// std::vector <int> LD_positions_prev;
 		// Additional Functions
 		double calculateCoulomb(const std::list<Polaron>::const_iterator polaron_it, const KMC_Lattice::Coords& coords) const;
 		double calculateCoulomb(const bool charge, const KMC_Lattice::Coords& coords) const;

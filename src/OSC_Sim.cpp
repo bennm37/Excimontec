@@ -113,6 +113,15 @@ namespace Excimontec {
 			transient_triplet_counts.assign(num_steps, 0);
 			transient_electron_counts.assign(num_steps, 0);
 			transient_hole_counts.assign(num_steps, 0);
+			transient_velocities.assign(num_steps,0);
+			Coords coords;
+			coords.z = 0;
+			int polaron_max = 1000;
+			// std::vector<int> LD_positions_prev;
+			// LD_positions_prev.assign(polaron_max,coords.z);
+			ToF_positions_prev.assign(polaron_max,coords.z);
+			transient_electron_tags.assign(0,-1);
+			transient_hole_tags.assign(0,-1);
 		}
 
 		else if (params.Enable_dynamics_test) {
@@ -1990,7 +1999,7 @@ namespace Excimontec {
 			*Logfile << "Created electron " << electron_new.getTag() << " at site " << coords.x << "," << coords.y << "," << coords.z << "." << endl;
 		}
 		// Update transient data
-		if (params.Enable_dynamics_test) {
+		if (params.Enable_dynamics_test||params.Enable_light_dynamics_test) {
 			transient_electron_tags.push_back(electrons.back().getTag());
 			transient_electron_energies_prev.push_back(0);
 		}
@@ -2020,7 +2029,7 @@ namespace Excimontec {
 			*Logfile << "Created hole " << hole_new.getTag() << " at site " << coords.x << "," << coords.y << "," << coords.z << "." << endl;
 		}
 		// Update transient data
-		if (params.Enable_dynamics_test) {
+		if (params.Enable_dynamics_test||params.Enable_light_dynamics_test) {
 			transient_hole_tags.push_back(holes.back().getTag());
 			transient_hole_energies_prev.push_back(0);
 		}
@@ -3090,6 +3099,8 @@ namespace Excimontec {
 	void OSC_Sim::updateTransientData() {
 		// ToF_positions_prev is a vector that stores the z-position of each charge carrier at the previous time interval
 		// Transient_xxxx_energies_prev is a vector that stores the energies of each object at the previous time interval
+		// cout << 'Updating transient data ... \n';
+		// LD_hole_positions_prev.assign(1,0);
 		if (params.Enable_ToF_test) {
 			// Check if enough time has passed since the previous time interval
 			if ((getTime() - Transient_creation_time) > transient_times[Transient_index_prev + 1]) {
@@ -3239,7 +3250,21 @@ namespace Excimontec {
 				Transient_electron_counts_prev = N_electrons;
 				Transient_hole_counts_prev = N_holes;
 				Transient_index_prev = index;
-			}
+				for (auto const &item : electrons) {
+				     // Get electron site energy and position for previous timestep
+				     int electron_index = (int)distance(transient_electron_tags.begin(), find(transient_electron_tags.begin(), transient_electron_tags.end(), item.getTag()));
+				     transient_velocities[index] += abs(1e-7*lattice.getUnitSize()*(item.getCoords().z - ToF_positions_prev[electron_index])) / ((getTime() - Transient_creation_time) - transient_times[Transient_index_prev]);
+				    //  cout << "Assingning Previous position of Electron " << electron_index << "to" <<item.getCoords().z << '\n';
+					 ToF_positions_prev[electron_index] = item.getCoords().z;
+				}
+				for (auto const &item : holes) {
+				     // Get electron site energy and position for previous timestep
+				     int hole_index = (int)distance(transient_hole_tags.begin(), find(transient_hole_tags.begin(), transient_hole_tags.end(), item.getTag()));
+				     transient_velocities[index] += abs(1e-7*lattice.getUnitSize()*(item.getCoords().z - ToF_positions_prev[hole_index])) / ((getTime() - Transient_creation_time) - transient_times[Transient_index_prev]);
+				    //  cout << "Assingning Previous position of Hole " << hole_index << "to" <<item.getCoords().z << '\n';
+					//  ToF_positions_prev[electron_index] = item.getCoords().z;
+				}
+			}	
 		}
 
 	
