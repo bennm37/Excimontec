@@ -602,9 +602,6 @@ namespace Excimontec {
 			cout << "Error enabling the light dynamics test." << endl;
 			Error_found = true;
 		}
-		if (Enable_light_dynamics_test){
-			cout << "Light Dynamics Test Enabled" << endl;
-		}
 		// Exciton Parameters
 		i++;
 		Exciton_generation_rate_donor = atof(stringvars[i].c_str());
@@ -870,7 +867,6 @@ namespace Excimontec {
 			Coulomb_cutoff = (int)floor(*min_element(vec.begin(), vec.end()) / 2.0);
 		}
 		New_param = atof(stringvars[i].c_str());
-		cout << "New_param loaded as " << New_param << endl;
 		i++;
 		if (Error_found) {
 			return false;
