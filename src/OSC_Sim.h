@@ -546,7 +546,7 @@ namespace Excimontec {
 		std::vector<double> exciton_lifetimes;
 		std::vector<double> exciton_diffusion_distances;
 		std::vector<int> exciton_hop_distances; // saved in lattice units squared
-		// std::vector<int> LD_positions_prev;
+		// std::vector<int> LD_positions_prev;ß
 		std::vector<int> transient_exciton_tags;
 		std::vector<int> transient_electron_tags;
 		std::vector<int> transient_hole_tags;

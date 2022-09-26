@@ -14,6 +14,10 @@ namespace Excimontec {
 
 	OSC_Sim::~OSC_Sim() {}
 
+	//TODO Declaring these here as if put in header file get a SegFault!! Why? 
+	std::vector<int> LD_hole_positions_prev;
+	std::vector<int> LD_electron_positions_prev;
+
 	bool OSC_Sim::init(const Parameters& params_in, const int id) {
 		// Reset error status
 		Error_found = false;
@@ -118,8 +122,8 @@ namespace Excimontec {
 			coords.z = 0;
 			int polaron_max = 1000;
 			// std::vector<int> LD_positions_prev;
-			// LD_positions_prev.assign(polaron_max,coords.z);
-			ToF_positions_prev.assign(polaron_max,coords.z);
+			LD_hole_positions_prev.assign(polaron_max,coords.z);
+			LD_electron_positions_prev.assign(polaron_max,coords.z);
 			transient_electron_tags.assign(0,-1);
 			transient_hole_tags.assign(0,-1);
 		}
@@ -3252,17 +3256,17 @@ namespace Excimontec {
 				Transient_index_prev = index;
 				for (auto const &item : electrons) {
 				     // Get electron site energy and position for previous timestep
-				     int electron_index = (int)distance(transient_electron_tags.begin(), find(transient_electron_tags.begin(), transient_electron_tags.end(), item.getTag()));
-				     transient_velocities[index] += abs(1e-7*lattice.getUnitSize()*(item.getCoords().z - ToF_positions_prev[electron_index])) / ((getTime() - Transient_creation_time) - transient_times[Transient_index_prev]);
+					int electron_index = (int)distance(transient_electron_tags.begin(), find(transient_electron_tags.begin(), transient_electron_tags.end(), item.getTag()));
+					transient_velocities[index] -= (1e-7*lattice.getUnitSize()*(item.getCoords().z - LD_electron_positions_prev[electron_index])) / ((getTime() - Transient_creation_time) - transient_times[Transient_index_prev]);
 				    //  cout << "Assingning Previous position of Electron " << electron_index << "to" <<item.getCoords().z << '\n';
-					 ToF_positions_prev[electron_index] = item.getCoords().z;
+					LD_electron_positions_prev[electron_index] = item.getCoords().z;
 				}
 				for (auto const &item : holes) {
-				     // Get electron site energy and position for previous timestep
-				     int hole_index = (int)distance(transient_hole_tags.begin(), find(transient_hole_tags.begin(), transient_hole_tags.end(), item.getTag()));
-				     transient_velocities[index] += abs(1e-7*lattice.getUnitSize()*(item.getCoords().z - ToF_positions_prev[hole_index])) / ((getTime() - Transient_creation_time) - transient_times[Transient_index_prev]);
-				    //  cout << "Assingning Previous position of Hole " << hole_index << "to" <<item.getCoords().z << '\n';
-					//  ToF_positions_prev[electron_index] = item.getCoords().z;
+					// Get electron site energy and position for previous timestep
+					int hole_index = (int)distance(transient_hole_tags.begin(), find(transient_hole_tags.begin(), transient_hole_tags.end(), item.getTag()));
+					transient_velocities[index] += (1e-7*lattice.getUnitSize()*(item.getCoords().z - LD_hole_positions_prev[hole_index])) / ((getTime() - Transient_creation_time) - transient_times[Transient_index_prev]);
+					//  cout << "Assingning Previous position of Hole " << hole_index << "to" <<item.getCoords().z << '\n';
+					LD_hole_positions_prev[hole_index] = item.getCoords().z;
 				}
 			}	
 		}

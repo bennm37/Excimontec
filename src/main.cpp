@@ -597,6 +597,7 @@ int main(int argc, char *argv[]) {
 	}
 	if (error_found == (char)0 && params.Enable_light_dynamics_test) {
 		double volume_total = sim.getVolume();
+		double electric_field = fabs(sim.getInternalField());
 		vector<double> times = sim.getDynamicsTransientTimes();
 		vector<int> singlets_total = MPI_calculateVectorSum(sim.getDynamicsTransientSinglets());
 		vector<int> triplets_total = MPI_calculateVectorSum(sim.getDynamicsTransientTriplets());
@@ -608,10 +609,11 @@ int main(int argc, char *argv[]) {
 			analysisfile << "Total volume : " << volume_total << ".\n";
 			ofstream transientfile;
 			transientfile.open("light_dynamics_transients.txt");
-			transientfile << "Times,Singlet Density (cm-3), Triplet Density (cm-3),Electron Density (cm-3), Hole Density (cm-3), Velocities (cms-1)\n";
+			transientfile << "Times,Singlet Density (cm-3), Triplet Density (cm-3),Electron Density (cm-3), Hole Density (cm-3), Velocities (cms-1), Current Density (mA cm^-2),Average Mobility (cm^2 V^-1 s^-1)\n";
 			for (int i = 0; i < (int)times.size(); i++) {
 				// transientfile << times[i] << "," << singlets_total[i] / volume_total << "," << triplets_total[i] / volume_total << "," << electrons_total[i] / volume_total << "," << holes_total[i] /volume_total <<"\n";
-				transientfile << times[i] << "," << singlets_total[i] << "," << triplets_total[i] << "," << electrons_total[i] << "," << holes_total[i] << "," << velocities_total[i] <<"\n";
+				// double counts = (double)electrons_total[i]+(double)holes_total[i];
+				transientfile << times[i] << "," << singlets_total[i] << "," << triplets_total[i] << "," << electrons_total[i] << "," << holes_total[i] << "," << velocities_total[i] << "," << 1000.0 * Elementary_charge*velocities_total[i] / volume_total << "," << (velocities_total[i] / (double)electrons_total[i]+(double)holes_total[i]) / electric_field << "\n";
 			}
 			transientfile.close();
 		}
